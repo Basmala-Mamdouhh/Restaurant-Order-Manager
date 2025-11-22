@@ -1,4 +1,3 @@
-// src/restaurant/domain/Order.java
 package restaurant.domain;
 
 import java.util.ArrayList;

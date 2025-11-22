@@ -1,4 +1,3 @@
-// src/restaurant/factory/NonVegMenuFactory.java
 package restaurant.factory;
 
 import java.util.Arrays;

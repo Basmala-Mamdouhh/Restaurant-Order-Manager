@@ -1,4 +1,3 @@
-// src/restaurant/domain/MenuItem.java
 package restaurant.domain;
 
 public class MenuItem {
@@ -17,8 +16,6 @@ public class MenuItem {
         this.price = price;
         this.description = description;
     }
-
-
 
     public String getName() {
         return name;

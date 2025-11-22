@@ -5,6 +5,6 @@ public class MeatDiscount implements DiscountStrategy {
 
     @Override
     public double applyDiscount(MenuItem item) {
-        return item.getPrice() * 0.5;
+        return item.getPrice() * 0.80;
     }
 }

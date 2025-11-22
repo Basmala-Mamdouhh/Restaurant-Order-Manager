@@ -1,5 +1,7 @@
 package restaurant.domain;
 
+import restaurant.strategy.DiscountContext;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,4 +40,15 @@ public class Order {
     public int getOrderID() {
         return orderID;
     }
+    public double calculateTotalAfterDiscounts() {
+        DiscountContext context = new DiscountContext();
+
+        double total = 0;
+        for (MenuItem item : items) {
+            total += context.applyDiscount(item);
+        }
+
+        return total;
+    }
+
 }

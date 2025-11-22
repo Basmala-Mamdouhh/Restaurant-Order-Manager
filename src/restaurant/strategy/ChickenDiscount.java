@@ -5,6 +5,6 @@ public class ChickenDiscount implements DiscountStrategy {
 
     @Override
     public double applyDiscount(MenuItem item) {
-        return item.getPrice() * 0.5;
+        return item.getPrice() * 0.85;
     }
 }

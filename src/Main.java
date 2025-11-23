@@ -4,6 +4,8 @@ import restaurant.MenuFactory.IMenuFactory;
 import restaurant.MenuFactory.KidsMenuFactory;
 import restaurant.MenuFactory.VegetarianFactory;
 import restaurant.MenuFactory.NonVegetarianFactory;
+import restaurant.OrderNotification.KitchenNotifier;
+import restaurant.OrderNotification.WaiterNotifier;
 import restaurant.WorkflowFacade.RestaurantFacade;
 import restaurant.strategy.payment.CashPayment;
 import restaurant.strategy.payment.CreditPayment;
@@ -19,6 +21,13 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         RestaurantFacade facade = new RestaurantFacade();
+        
+        // Set up notification observers (Kitchen and Waiter)
+        KitchenNotifier kitchen = new KitchenNotifier();
+        WaiterNotifier waiter = new WaiterNotifier();
+        facade.registerObserver(kitchen);
+        facade.registerObserver(waiter);
+        
         IMenuFactory vegFactory = new VegetarianFactory();
         IMenuFactory nonVegFactory = new NonVegetarianFactory();
         IMenuFactory kidsFactory = new KidsMenuFactory();

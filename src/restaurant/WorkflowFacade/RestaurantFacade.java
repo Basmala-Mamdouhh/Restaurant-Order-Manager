@@ -6,6 +6,8 @@ import restaurant.CustomAddOns.ExtraCheese;
 import restaurant.CustomAddOns.ExtraSauces;
 import restaurant.CustomAddOns.ExtraToppings;
 import restaurant.MenuFactory.IMenuFactory;
+import restaurant.OrderNotification.IOrderObserver;
+import restaurant.OrderNotification.OrderNotifier;
 import restaurant.strategy.discounts.DiscountLogic;
 import restaurant.strategy.discounts.PizzaDiscount;
 import restaurant.strategy.payment.PaymentLogic;
@@ -17,6 +19,11 @@ public class RestaurantFacade {
 
     private static final double TAX_PERCENTAGE = 0.10; // 10% tax
     private static final double DELIVERY_TAX = 0.20; // 20% tax
+    private final OrderNotifier orderNotifier;
+
+    public RestaurantFacade() {
+        this.orderNotifier = new OrderNotifier();
+    }
 
     // 1. Display menu
     public void displayMenu(IMenuFactory factory) {
@@ -28,7 +35,19 @@ public class RestaurantFacade {
     public Order createOrder(String orderType, List<IMenuItem> items) {
         Order order = new Order(orderType);
         items.forEach(order::addItem);
+        // Notify kitchen and waiter about the new order
+        orderNotifier.notifyOrderCreated(order);
         return order;
+    }
+
+    // Register observers (Kitchen, Waiter, etc.)
+    public void registerObserver(IOrderObserver observer) {
+        orderNotifier.addObserver(observer);
+    }
+
+    // Remove observer if needed
+    public void unregisterObserver(IOrderObserver observer) {
+        orderNotifier.removeObserver(observer);
     }
 
     // 3. Add add-ons (fix: apply decorators correctly)
@@ -52,8 +71,19 @@ public class RestaurantFacade {
             double discountedPrice = discountLogic.applyDiscount(item);
             total += discountedPrice; // discount applied per item
         }
-        double tax = total * TAX_PERCENTAGE;
+
+        // Apply tax based on order type
+        String orderType = order.getOrderType().toUpperCase();
+        double tax = 0;
+        if (orderType.equals("DINE_IN")) {
+            tax = total * TAX_PERCENTAGE; // 10% tax for dine-in
+        } else if (orderType.equals("DELIVERY")) {
+            tax = total * DELIVERY_TAX; // 20% tax for delivery
+        }
+        // TAKEAWAY: no tax (tax remains 0)
+
         return total + tax;
+        
     }
 
     // 5. Process payment (fix: print total with discounts + tax)

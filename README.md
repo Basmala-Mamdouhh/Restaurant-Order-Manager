@@ -313,13 +313,12 @@ The system is designed for easy extension:
 - Tax is calculated after discounts are applied
 - All observers are notified synchronously when orders are created or cancelled
 
-## 👨‍💻 Author
+## 👨‍💻 Authors
+Malak NourElhussien & Basmala Mamdouh
 
-Advanced Software Engineering Assignment - Cairo University  
+--- 
 Faculty of Computers and Artificial Intelligence  
 Course: Advanced Software Engineering 2025
-
 ---
 
-**Built with ❤️ using SOLID principles and Design Patterns**
 

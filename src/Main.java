@@ -89,7 +89,23 @@ public class Main {
             System.out.println("Enter order type (DINE_IN, DELIVERY, TAKEAWAY):");
             String orderType = sc.nextLine().trim().toUpperCase();
 
+            // Create order first
             Order order = facade.createOrder(orderType, orderItems);
+            
+            // Ask if user wants to proceed or cancel
+            System.out.println("\nOrder created! Order ID: " + order.getOrderID());
+            System.out.println("Do you want to: 1=Proceed to payment, 2=Cancel order");
+            int proceedChoice = sc.nextInt();
+            sc.nextLine(); // consume newline
+            
+            if (proceedChoice == 2) {
+                // Cancel the order
+                facade.cancelOrder(order);
+                System.out.println("\nDo you want to place another order? (yes/no):");
+                moreOrders = sc.nextLine().trim().equalsIgnoreCase("yes");
+                orderCount++;
+                continue;
+            }
 
             // Choose payment method
             System.out.println("Choose payment method: 1=Cash, 2=Credit, 3=Mobile Wallet");
@@ -110,7 +126,8 @@ public class Main {
                 default -> payment = new CashPayment();
             }
 
-            // Pay
+            // Process payment workflow: notify, calculate, and pay
+            facade.notifyOrder(order);
             facade.payOrder(order, payment);
 
             System.out.println("\nDo you want to place another order? (yes/no):");

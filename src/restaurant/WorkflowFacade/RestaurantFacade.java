@@ -35,9 +35,24 @@ public class RestaurantFacade {
     public Order createOrder(String orderType, List<IMenuItem> items) {
         Order order = new Order(orderType);
         items.forEach(order::addItem);
-        // Notify kitchen and waiter about the new order
-        orderNotifier.notifyOrderCreated(order);
         return order;
+    }
+
+    // Notify observers about order creation
+    public void notifyOrder(Order order) {
+        orderNotifier.notifyOrderCreated(order);
+    }
+
+    // Notify observers about order cancellation
+    public void notifyOrderCancelled(Order order) {
+        orderNotifier.notifyOrderCancelled(order);
+    }
+
+    // Cancel an order and notify observers
+    public void cancelOrder(Order order) {
+        System.out.println("\n--- ORDER CANCELLED ---");
+        System.out.println("Order ID: " + order.getOrderID() + " has been cancelled.");
+        notifyOrderCancelled(order);
     }
 
     // Register observers (Kitchen, Waiter, etc.)
@@ -101,5 +116,25 @@ public class RestaurantFacade {
         // Use PaymentLogic
         PaymentLogic logic = new PaymentLogic(paymentStrategy);
         logic.pay(order, total);
+    }
+
+    // Complete Ordering Workflow
+    // This method orchestrates the complete ordering process:
+    // 1. Create order with items and order type
+    // 2. Apply discounts
+    // 3. Calculate total with tax
+    // 4. Notify kitchen and waiter
+    // 5. Process payment and generate receipt
+    public void processOrderWorkflow(String orderType, List<IMenuItem> items, 
+                                     PaymentStrategy paymentStrategy) {
+        // Step 1: Create order
+        Order order = createOrder(orderType, items);
+        
+        // Step 2: Notify kitchen and waiter about the new order
+        notifyOrder(order);
+        
+        // Step 3: Process payment and generate receipt
+        // (calculateTotal is called inside payOrder)
+        payOrder(order, paymentStrategy);
     }
 }

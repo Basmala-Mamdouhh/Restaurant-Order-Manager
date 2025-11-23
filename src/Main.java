@@ -46,9 +46,7 @@ public class Main {
 
             List<IMenuItem> orderItems = new ArrayList<>();
 
-            //-----------------------------
-            // 1. CHOOSE MENU TYPE (SAFE)
-            //-----------------------------
+            // 1. CHOOSE MENU TYPE
             IMenuFactory chosenFactory = null;
             while (chosenFactory == null) {
                 System.out.println("Choose menu type:");
@@ -70,9 +68,7 @@ public class Main {
             facade.displayMenu(chosenFactory);
 
 
-            //-----------------------------
             // 2. ADD ITEMS
-            //-----------------------------
             while (true) {
                 System.out.println("\nEnter item name to add (or 'done' to finish):");
                 String itemName = sc.nextLine().trim().toLowerCase();
@@ -122,9 +118,7 @@ public class Main {
             }
 
 
-            //-----------------------------
-            // 3. GET ORDER TYPE (SAFE)
-            //-----------------------------
+            // 3. GET ORDER TYPE
             String orderType = "";
             while (true) {
                 System.out.println("\nEnter order type (DINE_IN, DELIVERY, TAKEAWAY):");
@@ -144,9 +138,8 @@ public class Main {
             System.out.println("\nOrder created successfully! Order ID: " + order.getOrderID());
 
 
-            //-----------------------------
             // 4. CONFIRM OR CANCEL
-            //-----------------------------
+
             int proceedChoice = 0;
             while (true) {
                 System.out.println("1 = Proceed to payment");
@@ -170,9 +163,8 @@ public class Main {
             }
 
 
-            //-----------------------------
-            // 5. PAYMENT STRATEGY (SAFE)
-            //-----------------------------
+            // 5. PAYMENT STRATEGY
+
             PaymentStrategy payment = null;
             while (payment == null) {
                 System.out.println("\nChoose payment method:");
@@ -199,15 +191,10 @@ public class Main {
             }
 
 
-            //-----------------------------
             // 6. PROCESS ORDER WORKFLOW
-            //-----------------------------
             facade.processOrderWorkflow(orderType, orderItems, payment);
 
-
-            //-----------------------------
             // 7. NEW ORDER?
-            //-----------------------------
             System.out.println("\nDo you want to place another order? (yes/no):");
             moreOrders = sc.nextLine().trim().equalsIgnoreCase("yes");
 

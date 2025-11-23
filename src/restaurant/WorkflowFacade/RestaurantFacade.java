@@ -85,39 +85,33 @@ public class RestaurantFacade {
         return logic.applyDiscount(item);
     }
 
-    // 4. Calculate total with discounts + tax
+    // 4. Calculate total with discounts + tax (with detailed print)
     public double calculateTotal(Order order) {
         double subtotal = 0;
 
+        System.out.println("\n--- Pricing Details ---");
         for (IMenuItem item : order.getItems()) {
-            subtotal += applyCategoryDiscount(item);
+            double discountedPrice = applyCategoryDiscount(item);
+            subtotal += discountedPrice;
+
+            System.out.printf("Item: %-30s Base Price: $%-5.2f Discounted Price: $%.2f%n",
+                    item.getDescription(),
+                    item.getPrice(),
+                    discountedPrice);
         }
 
         // TAX by order type
-        double tax = switch(order.getOrderType()) {
-            case "DINE_IN" -> subtotal * 0.10;
-            case "DELIVERY" -> subtotal * 0.20;
+        double tax = switch(order.getOrderType().toUpperCase()) {
+            case "DINE_IN" -> subtotal * TAX_PERCENTAGE;
+            case "DELIVERY" -> subtotal * DELIVERY_TAX;
             default -> 0;   // TAKEAWAY no tax
         };
 
+        System.out.printf("Subtotal: $%.2f%n", subtotal);
+        System.out.printf("Tax (%s): $%.2f%n", order.getOrderType(), tax);
+        System.out.printf("Total: $%.2f%n", subtotal + tax);
+
         return subtotal + tax;
-    }
-
-    // 5. Process payment (fix: print total with discounts + tax)
-    public void payOrder(Order order, PaymentStrategy paymentStrategy) {
-        double total = calculateTotal(order);
-        System.out.println("\n--- RECEIPT ---");
-        System.out.println("Order ID: " + order.getOrderID());
-        System.out.println("Order Type: " + order.getOrderType());
-        System.out.println("Items:");
-        order.getItems().forEach(i ->
-                System.out.println(" - " + i.getDescription() + " : $" + i.getPrice())
-        );
-        System.out.printf("Total after discounts + tax: $%.2f%n", total);
-
-        // Use PaymentLogic
-        PaymentLogic logic = new PaymentLogic(paymentStrategy);
-        logic.pay(order, total);
     }
 
     public void processOrderWorkflow(String orderType, List<IMenuItem> items,PaymentStrategy paymentStrategy) { //orchestrator

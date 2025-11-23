@@ -1,7 +1,13 @@
-package restaurant.observer;
-import restaurant.domain.Order;
-
-public class KitchenNotifier implements OrderObserver {
+package restaurant.OrderNotification;
+import restaurant.Core.Order;
+/**
+ * KitchenNotifier is a Concrete Observer.
+ * The kitchen needs to be notified whenever:
+ *  - A new order is created (so they can start preparing it)
+ *  - An order is cancelled (so they can stop preparing it)
+ * This class reacts to the notifications by printing kitchen-specific messages.
+ */
+public class KitchenNotifier implements IOrderObserver {
 
     @Override
     public void notifyOrderCreated(Order order) {

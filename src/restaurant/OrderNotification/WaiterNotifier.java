@@ -1,7 +1,13 @@
-package restaurant.observer;
-import restaurant.domain.Order;
-
-public class WaiterNotifier implements OrderObserver{
+package restaurant.OrderNotification;
+import restaurant.Core.Order;
+/**
+ * WaiterNotifier is another Concrete Observer.
+ * The waiter must also be informed when:
+ *  - A new order is created (so they can serve or follow up)
+ *  - An order is cancelled (so they stop monitoring it)
+ * This class handles waiter-specific notifications.
+ */
+public class WaiterNotifier implements IOrderObserver {
     @Override
     public void notifyOrderCreated(Order order) {
         System.out.println("Waiter notified: New order " + order.getOrderID());

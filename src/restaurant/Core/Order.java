@@ -1,6 +1,6 @@
-package restaurant.domain;
+package restaurant.Core;
 
-import restaurant.strategy.DiscountContext;
+import restaurant.strategy.discounts.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Order {
     private static final AtomicInteger idCounter = new AtomicInteger(100);
     private final int orderID;
-    private final List<restaurant.domain.MenuItem> items = new ArrayList<>();
+    private final List<restaurant.Core.IMenuItem> items = new ArrayList<>();
     private final String orderType; // e.g., "DINE_IN", "DELIVERY"
 
     public Order(String orderType) {
@@ -17,19 +17,15 @@ public class Order {
         this.orderID = idCounter.getAndIncrement();
     }
 
-    public void addItem(restaurant.domain.MenuItem item) {
+    public void addItem(restaurant.Core.IMenuItem item) {
         if (item != null) items.add(item);
     }
 
-    public void removeItem(restaurant.domain.MenuItem item) {
+    public void removeItem(restaurant.Core.IMenuItem item) {
         items.remove(item);
     }
 
-    public double getSubTotal() {
-        return items.stream().mapToDouble(restaurant.domain.MenuItem::getPrice).sum();
-    }
-
-    public List<restaurant.domain.MenuItem> getItems() {
+    public List<restaurant.Core.IMenuItem> getItems() {
         return new ArrayList<>(items);
     }
 
@@ -41,14 +37,24 @@ public class Order {
         return orderID;
     }
     public double calculateTotalAfterDiscounts() {
-        DiscountContext context = new DiscountContext();
-
         double total = 0;
-        for (MenuItem item : items) {
+
+        for (IMenuItem item : items) {
+            IDiscountStrategy strategy;
+
+            switch (item.getCategory().toUpperCase()) {
+                case "MEAT" -> strategy = new MeatDiscount();
+                case "CHICKEN" -> strategy = new ChickenDiscount();
+                case "PIZZA" -> strategy = new PizzaDiscount();
+                default -> strategy = IMenuItem::getPrice; // no discount
+            }
+
+            DiscountLogic context = new DiscountLogic(strategy);
             total += context.applyDiscount(item);
         }
 
         return total;
     }
+
 
 }

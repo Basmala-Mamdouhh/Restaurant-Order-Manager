@@ -1,8 +1,11 @@
-package restaurant.decorator;
+package restaurant.CustomAddOns;
+import restaurant.Core.IMenuItem;
 
-import restaurant.domain.IMenuItem;
+/**
+ * Adds extra toppings to a menu item.
+ */
+public class ExtraToppings extends MenuDecorator {
 
-public class ExtraToppings extends MenuDecorator{
     public ExtraToppings(IMenuItem baseItem) {
         super(baseItem);
     }
@@ -16,5 +19,4 @@ public class ExtraToppings extends MenuDecorator{
     public String getDescription() {
         return baseItem.getDescription() + " + Extra Toppings";
     }
-
 }

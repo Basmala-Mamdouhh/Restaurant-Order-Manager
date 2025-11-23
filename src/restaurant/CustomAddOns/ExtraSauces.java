@@ -1,8 +1,12 @@
-package restaurant.decorator;
+package restaurant.CustomAddOns;
 
-import restaurant.domain.IMenuItem;
+import restaurant.Core.IMenuItem;
 
-public class ExtraSauces extends MenuDecorator{
+/**
+ * Adds extra sauces to a menu item.
+ */
+public class ExtraSauces extends MenuDecorator {
+
     public ExtraSauces(IMenuItem baseItem) {
         super(baseItem);
     }
@@ -17,3 +21,4 @@ public class ExtraSauces extends MenuDecorator{
         return baseItem.getDescription() + " + Extra Sauces";
     }
 }
+

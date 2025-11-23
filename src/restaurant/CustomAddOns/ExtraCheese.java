@@ -1,7 +1,10 @@
-package restaurant.decorator;
+package restaurant.CustomAddOns;
 
-import restaurant.domain.IMenuItem;
+import restaurant.Core.IMenuItem;
 
+/**
+ * Adds extra cheese to a menu item.
+ */
 public class ExtraCheese extends MenuDecorator {
 
     public ExtraCheese(IMenuItem item) {

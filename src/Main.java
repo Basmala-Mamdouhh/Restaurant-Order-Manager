@@ -1,11 +1,10 @@
 import restaurant.Core.IMenuItem;
-import restaurant.Core.MenuItem;
 import restaurant.Core.Order;
 import restaurant.MenuFactory.IMenuFactory;
 import restaurant.MenuFactory.KidsMenuFactory;
 import restaurant.MenuFactory.VegetarianFactory;
 import restaurant.MenuFactory.NonVegetarianFactory;
-import restaurant.WorkflowFacad.RestaurantFacade;
+import restaurant.WorkflowFacade.RestaurantFacade;
 import restaurant.strategy.payment.CashPayment;
 import restaurant.strategy.payment.CreditPayment;
 import restaurant.strategy.payment.MobileWalletPayment;

@@ -1,7 +1,6 @@
-package restaurant.WorkflowFacad;
+package restaurant.WorkflowFacade;
 
 import restaurant.Core.IMenuItem;
-import restaurant.Core.MenuItem;
 import restaurant.Core.Order;
 import restaurant.CustomAddOns.ExtraCheese;
 import restaurant.CustomAddOns.ExtraSauces;
@@ -9,8 +8,6 @@ import restaurant.CustomAddOns.ExtraToppings;
 import restaurant.MenuFactory.IMenuFactory;
 import restaurant.strategy.discounts.DiscountLogic;
 import restaurant.strategy.discounts.PizzaDiscount;
-import restaurant.strategy.discounts.MeatDiscount;
-import restaurant.strategy.discounts.ChickenDiscount;
 import restaurant.strategy.payment.PaymentLogic;
 import restaurant.strategy.payment.PaymentStrategy;
 

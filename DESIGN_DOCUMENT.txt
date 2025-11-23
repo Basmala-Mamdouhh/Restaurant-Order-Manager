@@ -1,0 +1,485 @@
+================================================================================
+RESTAURANT ORDERING & BILLING SYSTEM
+DESIGN DECISIONS DOCUMENT
+================================================================================
+
+Course: Advanced Software Engineering 2025
+Faculty of Computers and Artificial Intelligence
+Cairo University
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+1. System Overview
+2. Design Patterns Selection and Rationale
+3. Architecture Decisions
+4. SOLID Principles Implementation
+5. Key Design Decisions
+6. Trade-offs and Considerations
+7. Future Extensibility
+
+================================================================================
+1. SYSTEM OVERVIEW
+================================================================================
+
+The Restaurant Ordering & Billing System is designed to simulate a complete
+restaurant workflow from menu browsing to payment processing. The system
+demonstrates clean architecture principles and object-oriented design patterns
+to achieve flexibility, maintainability, and extensibility.
+
+Core Requirements:
+- Multiple menu types (Vegetarian, Non-Vegetarian, Kids Menu)
+- Menu item variations within categories
+- Customizable add-ons for menu items
+- Order notifications to kitchen and waiter systems
+- Multiple payment methods
+- Category-based discount strategies
+- Order type-based tax calculation
+- Order cancellation capability
+
+================================================================================
+2. DESIGN PATTERNS SELECTION AND RATIONALE
+================================================================================
+
+2.1 ABSTRACT FACTORY PATTERN
+------------------------------
+
+Decision: Use Abstract Factory Pattern for menu creation
+
+Rationale:
+- The system requires creating families of related menu items (Vegetarian,
+  Non-Vegetarian, Kids Menu) without coupling the client code to specific
+  concrete classes
+- Each menu type has its own set of items with different characteristics
+- New menu types can be added without modifying existing code
+- Encapsulates the creation logic and ensures consistency within menu families
+
+Implementation:
+- IMenuFactory interface defines the contract for creating menu items
+- Concrete factories (VegetarianFactory, NonVegetarianFactory, KidsMenuFactory)
+  implement item creation specific to their menu type
+- Client code depends only on the IMenuFactory interface, not concrete classes
+
+Benefits:
+- Easy to add new menu types (e.g., Vegan Menu, Gluten-Free Menu)
+- Type safety: ensures items belong to the correct menu category
+- Centralized menu item creation logic
+
+2.2 DECORATOR PATTERN
+---------------------
+
+Decision: Use Decorator Pattern for add-ons (cheese, sauces, toppings)
+
+Rationale:
+- Add-ons need to be dynamically added to menu items at runtime
+- Multiple add-ons can be combined (e.g., extra cheese AND extra sauces)
+- Inheritance would lead to class explosion (MenuItem, ItemWithCheese,
+  ItemWithSauces, ItemWithCheeseAndSauces, etc.)
+- Decorator allows flexible composition without modifying base MenuItem class
+
+Implementation:
+- MenuDecorator abstract class wraps IMenuItem
+- Concrete decorators (ExtraCheese, ExtraSauces, ExtraToppings) extend
+  MenuDecorator and add their specific functionality
+- Decorators can be chained to add multiple add-ons
+
+Benefits:
+- Open/Closed Principle: can add new add-ons without modifying existing code
+- Flexible composition: any combination of add-ons is possible
+- Single Responsibility: each decorator handles one add-on type
+
+2.3 OBSERVER PATTERN
+---------------------
+
+Decision: Use Observer Pattern for order notifications
+
+Rationale:
+- Multiple systems (Kitchen, Waiter) need to be notified when orders are
+  created or cancelled
+- The order creation logic should not be tightly coupled to notification
+  systems
+- New observers can be added (e.g., Manager, Delivery Service) without
+  modifying order creation code
+- Supports one-to-many dependency: one order event triggers multiple notifications
+
+Implementation:
+- IOrderSubject interface defines methods for managing observers
+- IOrderObserver interface defines notification methods
+- OrderNotifier (Subject) maintains list of observers and notifies them
+- KitchenNotifier and WaiterNotifier (Observers) react to notifications
+
+Benefits:
+- Loose coupling: Order class doesn't know about notification systems
+- Extensibility: easy to add new observers
+- Separation of concerns: notification logic separated from business logic
+
+2.4 STRATEGY PATTERN
+--------------------
+
+Decision: Use Strategy Pattern for both discounts and payments
+
+Rationale for Discount Strategy:
+- Different discount algorithms for different item categories (Pizza, Meat,
+  Chicken)
+- Discount calculation logic should be encapsulated and interchangeable
+- New discount types can be added without modifying existing code
+- Allows runtime selection of discount algorithm based on item category
+
+Rationale for Payment Strategy:
+- Multiple payment methods (Cash, Credit Card, Mobile Wallet) with different
+  processing logic
+- Payment processing should be interchangeable and extensible
+- Client code should not depend on concrete payment implementations
+
+Implementation:
+- IDiscountStrategy interface defines discount calculation contract
+- Concrete strategies: PizzaDiscount, MeatDiscount, ChickenDiscount
+- PaymentStrategy interface defines payment processing contract
+- Concrete strategies: CashPayment, CreditPayment, MobileWalletPayment
+- Context classes (DiscountLogic, PaymentLogic) use the strategies
+
+Benefits:
+- Algorithm encapsulation: each strategy encapsulates one algorithm
+- Runtime flexibility: can switch strategies at runtime
+- Easy testing: strategies can be tested independently
+- Extensibility: new strategies can be added without modifying context
+
+2.5 FACADE PATTERN
+------------------
+
+Decision: Use Facade Pattern to provide unified interface for ordering workflow
+
+Rationale:
+- The system has multiple subsystems (Menu Factory, Order Management,
+  Notifications, Discounts, Payments)
+- Client code (Main class) should not need to know about all subsystem
+  complexities
+- Facade simplifies the interface and hides subsystem complexity
+- Provides a high-level interface for the complete ordering workflow
+
+Implementation:
+- RestaurantFacade class provides simplified methods for:
+  - Displaying menus
+  - Creating orders
+  - Adding extras to items
+  - Calculating totals
+  - Processing payments
+  - Managing notifications
+- processOrderWorkflow() method orchestrates the complete workflow
+
+Benefits:
+- Simplified client interface
+- Reduced coupling: client depends on facade, not all subsystems
+- Centralized workflow logic
+- Easier maintenance: changes to subsystems don't affect client code
+
+================================================================================
+3. ARCHITECTURE DECISIONS
+================================================================================
+
+3.1 PACKAGE STRUCTURE
+---------------------
+
+Decision: Organize code into packages by functionality
+
+Structure:
+- Core: Fundamental entities (MenuItem, Order)
+- MenuFactory: Menu creation logic
+- CustomAddOns: Decorator pattern implementation
+- OrderNotification: Observer pattern implementation
+- strategy: Strategy pattern implementations (discounts and payments)
+- WorkflowFacade: Facade pattern implementation
+
+Rationale:
+- Clear separation of concerns
+- Easy to locate related classes
+- Follows Java package naming conventions
+- Supports modular development
+
+3.2 TAX CALCULATION
+--------------------
+
+Decision: Calculate tax based on order type with different rates
+
+Implementation:
+- DINE_IN: 10% tax
+- DELIVERY: 20% tax
+- TAKEAWAY: 0% tax
+
+Rationale:
+- Different order types have different service requirements
+- Tax calculation is centralized in RestaurantFacade
+- Uses switch expression for clarity and type safety
+- Tax is calculated after discounts are applied
+
+3.3 DISCOUNT APPLICATION
+-------------------------
+
+Decision: Apply discounts per item based on category
+
+Implementation:
+- Discounts are applied during total calculation
+- Each item category has its own discount strategy
+- Discounts are calculated before tax
+
+Rationale:
+- Category-based discounts are common in restaurant systems
+- Per-item discount allows fine-grained control
+- Strategy pattern makes it easy to modify discount logic
+- Discounts applied before tax is standard accounting practice
+
+3.4 ORDER ID GENERATION
+------------------------
+
+Decision: Use AtomicInteger for thread-safe order ID generation
+
+Implementation:
+- Static AtomicInteger counter starting at 100
+- Each order gets unique, sequential ID
+
+Rationale:
+- Ensures unique order IDs even in multi-threaded environments
+- Sequential IDs are easier to track and reference
+- Starting at 100 provides buffer and looks more professional
+
+================================================================================
+4. SOLID PRINCIPLES IMPLEMENTATION
+================================================================================
+
+4.1 SINGLE RESPONSIBILITY PRINCIPLE (SRP)
+------------------------------------------
+
+Each class has one reason to change:
+
+- MenuItem: Only responsible for representing a menu item
+- Order: Only responsible for managing order state
+- RestaurantFacade: Only responsible for orchestrating workflow
+- PaymentStrategy implementations: Only responsible for payment processing
+- DiscountStrategy implementations: Only responsible for discount calculation
+- Decorators: Each responsible for one add-on type
+
+4.2 OPEN/CLOSED PRINCIPLE (OCP)
+--------------------------------
+
+System is open for extension, closed for modification:
+
+- New menu factories can be added by implementing IMenuFactory (no modification
+  needed)
+- New add-ons can be added by extending MenuDecorator (no modification needed)
+- New payment methods can be added by implementing PaymentStrategy
+- New discount types can be added by implementing IDiscountStrategy
+- New observers can be added by implementing IOrderObserver
+
+4.3 LISKOV SUBSTITUTION PRINCIPLE (LSP)
+---------------------------------------
+
+Subtypes must be substitutable for their base types:
+
+- All concrete factories can replace IMenuFactory
+- All decorators can replace IMenuItem
+- All payment strategies can replace PaymentStrategy
+- All discount strategies can replace IDiscountStrategy
+- All observers can replace IOrderObserver
+
+4.4 INTERFACE SEGREGATION PRINCIPLE (ISP)
+-------------------------------------------
+
+Clients should not depend on interfaces they don't use:
+
+- IMenuItem contains only menu item operations
+- IOrderObserver contains only notification methods
+- PaymentStrategy contains only payment-related methods
+- IDiscountStrategy contains only discount calculation methods
+- No "fat" interfaces that force clients to implement unused methods
+
+4.5 DEPENDENCY INVERSION PRINCIPLE (DIP)
+-----------------------------------------
+
+High-level modules depend on abstractions, not concretions:
+
+- RestaurantFacade depends on IMenuFactory, not concrete factories
+- DiscountLogic depends on IDiscountStrategy interface
+- PaymentLogic depends on PaymentStrategy interface
+- OrderNotifier depends on IOrderObserver interface
+- All dependencies are on abstractions, enabling loose coupling
+
+================================================================================
+5. KEY DESIGN DECISIONS
+================================================================================
+
+5.1 WORKFLOW ORCHESTRATION
+--------------------------
+
+Decision: Centralize workflow in processOrderWorkflow() method
+
+Rationale:
+- Encapsulates the complete ordering sequence
+- Ensures correct order of operations (create order, calculate, notify, pay)
+- Single point of control for workflow logic
+- Easier to modify workflow without affecting client code
+
+5.2 NOTIFICATION TIMING
+-----------------------
+
+Decision: Notify observers after order creation but before payment
+
+Rationale:
+- Kitchen and waiter need to know about orders immediately
+- Notification happens after order is fully created with all items
+- Allows for order cancellation before payment
+- Separates order creation from payment processing
+
+5.3 ITEM NAME MATCHING
+----------------------
+
+Decision: Use flexible string matching (contains) for item names
+
+Implementation:
+- Convert input to lowercase
+- Use contains() method to match keywords
+- Support both full names and partial matches
+
+Rationale:
+- More user-friendly: users don't need exact spelling
+- Supports variations: "italian pizza", "pizza italian", "italian"
+- Case-insensitive matching improves usability
+- Trade-off: might match unintended items, but validation prevents issues
+
+5.4 ORDER CANCELLATION
+----------------------
+
+Decision: Allow cancellation after order creation but before payment
+
+Rationale:
+- Realistic workflow: customers might change their mind
+- Cancellation triggers notifications to kitchen and waiter
+- Order is created first to generate order ID for tracking
+- Payment only happens after confirmation
+
+5.5 DISCOUNT STRATEGY SELECTION
+--------------------------------
+
+Decision: Select discount strategy based on item category at runtime
+
+Implementation:
+- Switch expression maps category to appropriate strategy
+- Each item gets its category-specific discount
+
+Rationale:
+- Different categories have different discount rules
+- Strategy pattern allows easy modification of discount logic
+- Runtime selection based on item properties is flexible
+- Centralized in applyCategoryDiscount() method
+
+================================================================================
+6. TRADE-OFFS AND CONSIDERATIONS
+================================================================================
+
+6.1 PERFORMANCE VS. FLEXIBILITY
+--------------------------------
+
+Trade-off: Using multiple design patterns adds abstraction layers
+
+Consideration:
+- Patterns add some overhead but provide significant flexibility
+- The overhead is negligible for restaurant ordering system scale
+- Flexibility and maintainability outweigh minor performance costs
+
+6.2 CODE COMPLEXITY VS. EXTENSIBILITY
+--------------------------------------
+
+Trade-off: More classes and interfaces increase initial complexity
+
+Consideration:
+- Initial setup is more complex, but future changes are easier
+- Well-documented code mitigates complexity
+- Patterns provide structure that reduces long-term complexity
+
+6.3 NOTIFICATION SYNCHRONOUS VS. ASYNCHRONOUS
+---------------------------------------------
+
+Decision: Synchronous notifications
+
+Consideration:
+- Simpler implementation
+- For restaurant scale, synchronous is sufficient
+- Could be extended to asynchronous if needed for high-volume scenarios
+
+6.4 ERROR HANDLING
+------------------
+
+Decision: Basic error handling with user-friendly messages
+
+Consideration:
+- System focuses on demonstrating design patterns
+- Production system would need more robust error handling
+- Current implementation provides basic validation and feedback
+
+================================================================================
+7. FUTURE EXTENSIBILITY
+================================================================================
+
+The system is designed for easy extension:
+
+7.1 NEW MENU TYPES
+------------------
+- Implement IMenuFactory interface
+- Add new factory class
+- No changes needed to existing code
+
+7.2 NEW ADD-ONS
+---------------
+- Extend MenuDecorator class
+- Implement add-on logic
+- Automatically works with existing system
+
+7.3 NEW PAYMENT METHODS
+-----------------------
+- Implement PaymentStrategy interface
+- Add to payment selection in Main
+- No changes to payment processing logic
+
+7.4 NEW DISCOUNT TYPES
+----------------------
+- Implement IDiscountStrategy interface
+- Add to category mapping in RestaurantFacade
+- Automatically applied based on category
+
+7.5 NEW OBSERVERS
+-----------------
+- Implement IOrderObserver interface
+- Register with RestaurantFacade
+- Automatically receives all notifications
+
+7.6 NEW ORDER TYPES
+-------------------
+- Add new order type string
+- Add tax calculation case
+- System automatically handles it
+
+================================================================================
+CONCLUSION
+================================================================================
+
+The Restaurant Ordering & Billing System demonstrates a well-architected
+solution that balances flexibility, maintainability, and extensibility.
+The use of multiple design patterns ensures that the system can evolve
+without major refactoring, while SOLID principles guarantee clean, testable,
+and maintainable code.
+
+The design decisions prioritize:
+1. Separation of concerns
+2. Loose coupling between components
+3. High cohesion within components
+4. Extensibility without modification
+5. Clear, understandable code structure
+
+This architecture provides a solid foundation for a production restaurant
+management system while serving as an excellent example of advanced
+software engineering principles.
+
+================================================================================
+END OF DOCUMENT
+================================================================================
+

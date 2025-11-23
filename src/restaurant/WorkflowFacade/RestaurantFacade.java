@@ -118,23 +118,14 @@ public class RestaurantFacade {
         logic.pay(order, total);
     }
 
-    // Complete Ordering Workflow
-    // This method orchestrates the complete ordering process:
-    // 1. Create order with items and order type
-    // 2. Apply discounts
-    // 3. Calculate total with tax
-    // 4. Notify kitchen and waiter
-    // 5. Process payment and generate receipt
-    public void processOrderWorkflow(String orderType, List<IMenuItem> items, 
-                                     PaymentStrategy paymentStrategy) {
+    public void processOrderWorkflow(String orderType, List<IMenuItem> items,PaymentStrategy paymentStrategy) { //orchestrator
         // Step 1: Create order
         Order order = createOrder(orderType, items);
         
         // Step 2: Notify kitchen and waiter about the new order
         notifyOrder(order);
         
-        // Step 3: Process payment and generate receipt
-        // (calculateTotal is called inside payOrder)
+        // Step 3: Process payment and generate receipt (calculateTotal is called inside payOrder)
         payOrder(order, paymentStrategy);
     }
 }

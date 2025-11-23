@@ -67,7 +67,6 @@ public class Main {
             // Display menu
             facade.displayMenu(chosenFactory);
 
-
             // 2. ADD ITEMS
             while (true) {
                 System.out.println("\nEnter item name to add (or 'done' to finish):");

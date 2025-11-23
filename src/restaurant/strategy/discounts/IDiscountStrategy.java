@@ -3,5 +3,5 @@ import restaurant.Core.IMenuItem;
 import restaurant.Core.MenuItem;
 
 public interface IDiscountStrategy {
-    public double applyDiscount(IMenuItem item);
+    double applyDiscount(IMenuItem item);
 }

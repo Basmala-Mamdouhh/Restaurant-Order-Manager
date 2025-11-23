@@ -1,14 +1,16 @@
 package restaurant.strategy.payment;
 
-
 import restaurant.Core.Order;
 
 public class PaymentLogic {
-    private PaymentStrategy startegy;
+
+    private final PaymentStrategy strategy;
+
     public PaymentLogic(PaymentStrategy strategy) {
-        this.startegy = strategy;
+        this.strategy = strategy;
     }
+
     public void pay(Order order, double totalAmount) {
-        startegy.pay(order, totalAmount);
+        strategy.pay(order, totalAmount);
     }
 }

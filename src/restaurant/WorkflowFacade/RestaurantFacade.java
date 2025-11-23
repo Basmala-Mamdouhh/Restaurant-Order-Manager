@@ -8,8 +8,7 @@ import restaurant.CustomAddOns.ExtraToppings;
 import restaurant.MenuFactory.IMenuFactory;
 import restaurant.OrderNotification.IOrderObserver;
 import restaurant.OrderNotification.OrderNotifier;
-import restaurant.strategy.discounts.DiscountLogic;
-import restaurant.strategy.discounts.PizzaDiscount;
+import restaurant.strategy.discounts.*;
 import restaurant.strategy.payment.PaymentLogic;
 import restaurant.strategy.payment.PaymentStrategy;
 
@@ -60,11 +59,6 @@ public class RestaurantFacade {
         orderNotifier.addObserver(observer);
     }
 
-    // Remove observer if needed
-    public void unregisterObserver(IOrderObserver observer) {
-        orderNotifier.removeObserver(observer);
-    }
-
     // 3. Add add-ons (fix: apply decorators correctly)
     public IMenuItem addExtra(IMenuItem item, List<String> addons) {
         IMenuItem decorated = item;
@@ -78,27 +72,35 @@ public class RestaurantFacade {
         return decorated;
     }
 
+    private double applyCategoryDiscount(IMenuItem item) {
+
+        IDiscountStrategy strategy = switch (item.getCategory().toUpperCase()) {
+            case "PIZZA" -> new PizzaDiscount();
+            case "MEAT" -> new MeatDiscount();
+            case "CHICKEN" -> new ChickenDiscount();
+            default -> null;
+        };
+
+        DiscountLogic logic = new DiscountLogic(strategy);
+        return logic.applyDiscount(item);
+    }
+
     // 4. Calculate total with discounts + tax
     public double calculateTotal(Order order) {
-        double total = 0;
+        double subtotal = 0;
+
         for (IMenuItem item : order.getItems()) {
-            DiscountLogic discountLogic = new DiscountLogic(new PizzaDiscount());
-            double discountedPrice = discountLogic.applyDiscount(item);
-            total += discountedPrice; // discount applied per item
+            subtotal += applyCategoryDiscount(item);
         }
 
-        // Apply tax based on order type
-        String orderType = order.getOrderType().toUpperCase();
-        double tax = 0;
-        if (orderType.equals("DINE_IN")) {
-            tax = total * TAX_PERCENTAGE; // 10% tax for dine-in
-        } else if (orderType.equals("DELIVERY")) {
-            tax = total * DELIVERY_TAX; // 20% tax for delivery
-        }
-        // TAKEAWAY: no tax (tax remains 0)
+        // TAX by order type
+        double tax = switch(order.getOrderType()) {
+            case "DINE_IN" -> subtotal * 0.10;
+            case "DELIVERY" -> subtotal * 0.20;
+            default -> 0;   // TAKEAWAY no tax
+        };
 
-        return total + tax;
-        
+        return subtotal + tax;
     }
 
     // 5. Process payment (fix: print total with discounts + tax)
@@ -121,11 +123,15 @@ public class RestaurantFacade {
     public void processOrderWorkflow(String orderType, List<IMenuItem> items,PaymentStrategy paymentStrategy) { //orchestrator
         // Step 1: Create order
         Order order = createOrder(orderType, items);
-        
+
+        // Calculate total with discount + correct tax
+        double total = calculateTotal(order);
+
         // Step 2: Notify kitchen and waiter about the new order
         notifyOrder(order);
         
-        // Step 3: Process payment and generate receipt (calculateTotal is called inside payOrder)
-        payOrder(order, paymentStrategy);
+        // Step 3: Process payment
+        PaymentLogic paymentLogic = new PaymentLogic(paymentStrategy);
+        paymentLogic.pay(order, total);
     }
 }

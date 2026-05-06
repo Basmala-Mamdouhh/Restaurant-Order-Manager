@@ -1,6 +1,6 @@
 # Restaurant Ordering & Billing System
 
-A comprehensive restaurant management system that enables customers to browse menus, customize meals, place orders, process payments, and generate bills. The system is built using SOLID design principles and implements multiple object-oriented design patterns for flexibility, maintainability, and extensibility.
+A restaurant management system built in Java applying SOLID principles and design patterns (Factory, Strategy, Decorator, Observer, Facade) to handle orders, payments, discounts, and notifications.
 
 ## 📋 Table of Contents
 
